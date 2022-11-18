@@ -12,7 +12,7 @@ interface IBasicCard {
   count: number
 }
 
-export const BasicCard = (props: IBasicCard) => {
+export const BasicCard = (props: IBasicCard): JSX.Element => {
   const { bookId, title, description, count } = props
 
   return (
@@ -22,7 +22,9 @@ export const BasicCard = (props: IBasicCard) => {
           {title}
         </Typography>
         <Typography sx={{ mb: 1.5 }} color='text.secondary'>
-          {`Only ${count} remained in stock!`}
+          {count < 20
+            ? `Only ${count} remained in stock!`
+            : `${count} books are available for booking.`}
         </Typography>
         <Typography variant='body2'>{description}</Typography>
       </CardContent>

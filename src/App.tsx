@@ -16,7 +16,7 @@ export const App = () => {
   const rowsPerPage = 10
 
   const { books } = useAppSelector((state) => state.books)
-  console.log(books, 'books')
+
   React.useEffect(() => {
     dispatch(fetchBooks(page, rowsPerPage))
   }, [page])
@@ -40,15 +40,18 @@ export const App = () => {
         maxWidth='lg'
         sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '20px' }}
       >
-        {books.map((book) => (
-          <BasicCard
-            key={book._id}
-            bookId={book._id as string}
-            title={book.title}
-            description={book.description}
-            count={book.count}
-          />
-        ))}
+        {books.map(
+          (book) =>
+            book.count && (
+              <BasicCard
+                key={book._id}
+                bookId={book._id as string}
+                title={book.title}
+                description={book.description}
+                count={book.count}
+              />
+            ),
+        )}
       </Container>
     </React.Fragment>
   )

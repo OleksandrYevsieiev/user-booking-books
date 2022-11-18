@@ -7,7 +7,7 @@ export const addReservation = (data: IReservation) => async (dispatch: AppDispat
   try {
     dispatch(reservationSlice.actions.reservAdding())
 
-    const result = await axiosInstance.post('api/books/store', data)
+    const result = await axiosInstance.post(`api/books/reservation?book_id=${data.book_id}`, data)
     if (result?.status === 201) alert('You have sucessfully reserved a book!')
     dispatch(reservationSlice.actions.reservAddingSuccess(result.data))
   } catch (e: any) {
