@@ -13,7 +13,14 @@ export const BasicPagination = (props: IBasicPagination) => {
   const { count, defaultPage, page, handleChangePage } = props
   return (
     <Stack spacing={2}>
-      <Pagination defaultPage={defaultPage} count={count} page={page} onChange={handleChangePage} />
+      <Pagination
+        defaultPage={defaultPage}
+        count={count}
+        page={page}
+        onChange={handleChangePage}
+        showFirstButton
+        showLastButton
+      />
     </Stack>
   )
 }

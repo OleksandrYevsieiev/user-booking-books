@@ -22,7 +22,7 @@ export const App = () => {
   }, [page])
 
   const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-    setPage(newPage)
+    setPage(newPage - 1)
   }
 
   return (
@@ -30,9 +30,9 @@ export const App = () => {
       <CssBaseline />
       <Box sx={{ bgcolor: '#cfe8fc', mb: 5, display: 'flex', justifyContent: 'center' }}>
         <BasicPagination
-          defaultPage={1}
+          defaultPage={0}
           count={books.length}
-          page={page}
+          page={page + 1}
           handleChangePage={handleChangePage}
         />
       </Box>
