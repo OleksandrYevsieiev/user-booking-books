@@ -1,28 +1,55 @@
 import React from 'react'
 import Grid from '@mui/material/Unstable_Grid2'
+import CssBaseline from '@mui/material/CssBaseline'
+import Box from '@mui/material/Box'
+import Container from '@mui/material/Container'
 
 import './App.css'
 import { BasicCard } from './components/BookCard'
+import { useAppDispatch, useAppSelector } from './redux/hooks'
+import { fetchBooks } from './features/BookList/bookAPI'
+import { BasicPagination } from './components/Pagination'
 
-function App() {
+export const App = () => {
+  const dispatch = useAppDispatch()
+  const [page, setPage] = React.useState(0)
+
+  const rowsPerPage = 10
+
+  const { books } = useAppSelector((state) => state.books)
+  console.log(books, 'books')
+  React.useEffect(() => {
+    dispatch(fetchBooks(page, rowsPerPage))
+  }, [page])
+
+  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    setPage(newPage)
+  }
+
   return (
-    <div className='App'>
-      <Grid
-        container
-        spacing={0}
-        direction='column'
-        alignItems='center'
-        justifyContent='center'
-        style={{ minHeight: '100vh' }}
-      >
-        <BasicCard
-          title='Great Book'
-          description='Lorem ipsum dolor sit amet consectetur adipisicing elit. Excepturi corporis officiis ipsum quaerat quo incidunt suscipit iste laboriosam aspernatur repellat!'
-          count={15}
+    <React.Fragment>
+      <CssBaseline />
+      <Box sx={{ bgcolor: '#cfe8fc', mb: 5, display: 'flex', justifyContent: 'center' }}>
+        <BasicPagination
+          defaultPage={1}
+          count={books.length}
+          page={page}
+          handleChangePage={handleChangePage}
         />
-      </Grid>
-    </div>
+      </Box>
+      <Container
+        maxWidth='lg'
+        sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '20px' }}
+      >
+        {books.map((book) => (
+          <BasicCard
+            key={book._id}
+            title={book.title}
+            description={book.description}
+            count={book.count}
+          />
+        ))}
+      </Container>
+    </React.Fragment>
   )
 }
-
-export default App
