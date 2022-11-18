@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import * as React from 'react'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
@@ -6,9 +7,24 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
+import { useAppDispatch } from '../../redux/hooks'
+import { addReservation } from '../../features/Reservation/reservationAPI'
 
-export const FormDialog = () => {
+interface IFormDialog {
+  bookId: string
+}
+
+export const FormDialog = (props: IFormDialog) => {
+  const { bookId } = props
+  const dispatch = useAppDispatch()
   const [open, setOpen] = React.useState(false)
+
+  const data = {
+    book_id: bookId,
+    user_name: 'John Doe',
+    start_date: '01.01.2022',
+    end_date: '01.02.2022',
+  }
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -18,6 +34,10 @@ export const FormDialog = () => {
     setOpen(false)
   }
 
+  const handleReserve = () => {
+    dispatch(addReservation(data))
+    setOpen(false)
+  }
   return (
     <div>
       <Button variant='outlined' onClick={handleClickOpen}>
@@ -51,7 +71,7 @@ export const FormDialog = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Confirm and book</Button>
+          <Button onClick={handleReserve}>Confirm and book</Button>
         </DialogActions>
       </Dialog>
     </div>

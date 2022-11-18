@@ -1,9 +1,11 @@
 import { configureStore, ThunkAction, Action } from '@reduxjs/toolkit'
 import booksReducer from '../features/BookList/bookListSlice'
+import reservationsReducer from '../features/Reservation/reservationSlice'
 
 export const store = configureStore({
   reducer: {
     books: booksReducer,
+    reservations: reservationsReducer,
   },
 })
 

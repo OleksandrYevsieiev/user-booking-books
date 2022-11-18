@@ -6,13 +6,14 @@ import Typography from '@mui/material/Typography'
 import { FormDialog } from '../FormDialog'
 
 interface IBasicCard {
+  bookId: string
   title: string
   description: string
   count: number
 }
 
 export const BasicCard = (props: IBasicCard) => {
-  const { title, description, count } = props
+  const { bookId, title, description, count } = props
 
   return (
     <Card sx={{ minWidth: 350, maxWidth: 450 }}>
@@ -26,7 +27,7 @@ export const BasicCard = (props: IBasicCard) => {
         <Typography variant='body2'>{description}</Typography>
       </CardContent>
       <CardActions sx={{ display: 'flex', justifyContent: 'center', mb: 1.5 }}>
-        <FormDialog />
+        <FormDialog bookId={bookId} />
       </CardActions>
     </Card>
   )

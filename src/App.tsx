@@ -1,5 +1,4 @@
 import React from 'react'
-import Grid from '@mui/material/Unstable_Grid2'
 import CssBaseline from '@mui/material/CssBaseline'
 import Box from '@mui/material/Box'
 import Container from '@mui/material/Container'
@@ -44,6 +43,7 @@ export const App = () => {
         {books.map((book) => (
           <BasicCard
             key={book._id}
+            bookId={book._id as string}
             title={book.title}
             description={book.description}
             count={book.count}
