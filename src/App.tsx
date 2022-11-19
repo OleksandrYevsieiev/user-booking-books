@@ -44,6 +44,8 @@ export const App = () => {
           (book) =>
             book.count && (
               <BasicCard
+                page={page}
+                rowsPerPage={rowsPerPage}
                 key={book._id}
                 bookId={book._id as string}
                 title={book.title}

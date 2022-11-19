@@ -10,10 +10,12 @@ interface IBasicCard {
   title: string
   description: string
   count: number
+  page: number
+  rowsPerPage: number
 }
 
 export const BasicCard = (props: IBasicCard): JSX.Element => {
-  const { bookId, title, description, count } = props
+  const { bookId, title, description, count, page, rowsPerPage } = props
 
   return (
     <Card sx={{ minWidth: 350, maxWidth: 450 }}>
@@ -29,7 +31,7 @@ export const BasicCard = (props: IBasicCard): JSX.Element => {
         <Typography variant='body2'>{description}</Typography>
       </CardContent>
       <CardActions sx={{ display: 'flex', justifyContent: 'center', mb: 1.5 }}>
-        <FormDialog bookId={bookId} />
+        <FormDialog bookId={bookId} page={page} rowsPerPage={rowsPerPage} />
       </CardActions>
     </Card>
   )

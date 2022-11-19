@@ -1,5 +1,7 @@
 /* eslint-disable camelcase */
 import * as React from 'react'
+import { useForm, SubmitHandler, Controller } from 'react-hook-form'
+import moment from 'moment'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Dialog from '@mui/material/Dialog'
@@ -7,34 +9,42 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
-import { useAppDispatch } from '../../redux/hooks'
-import { addReservation } from '../../features/Reservation/reservationAPI'
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 
-import moment, { Moment } from 'moment'
+import { useAppDispatch } from '../../redux/hooks'
+import { addReservation } from '../../features/Reservation/reservationAPI'
+import { fetchBooks } from '../../features/BookList/bookAPI'
 
 interface IFormDialog {
   bookId: string
+  page: number
+  rowsPerPage: number
+}
+
+interface IFormInput {
+  start_date: string
+  end_date: string
 }
 
 export const FormDialog = (props: IFormDialog) => {
-  const { bookId } = props
+  const { bookId, page, rowsPerPage } = props
   const dispatch = useAppDispatch()
-  const [open, setOpen] = React.useState(false)
-  const [valueFrom, setValueFrom] = React.useState<Moment | null>(moment())
-  const [valueTo, setValueTo] = React.useState<Moment | null>(moment())
+  const { handleSubmit, control } = useForm<IFormInput>()
 
-  const data = {
-    book_id: bookId,
-    user_name: 'John Doe',
-    start_date: '01.01.2022',
-    end_date: '01.02.2022',
-  }
+  const [open, setOpen] = React.useState(false)
+  const [valueFrom, setValueFrom] = React.useState('')
 
   // Adding it this way, but generally in a real case scenario
   // we most likely will receive all relevant data about user from something like user config
   const userName = 'John Doe'
+
+  const onSubmit: SubmitHandler<IFormInput> = async (data) => {
+    const updatedData = { ...data, book_id: bookId, user_name: userName }
+    const result = await dispatch(addReservation(updatedData))
+    if (result?.status === 201) dispatch(fetchBooks(page, rowsPerPage))
+    setOpen(false)
+  }
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -44,57 +54,78 @@ export const FormDialog = (props: IFormDialog) => {
     setOpen(false)
   }
 
-  const handleReserve = () => {
-    dispatch(addReservation(data))
-    setOpen(false)
-  }
-
-  const handleChangeFrom = (newValue: Moment | null) => {
-    console.log(newValue, 'valueFrom')
-
-    setValueFrom(newValue)
-  }
-
-  const handleChangeTo = (newValue: Moment | null) => {
-    console.log(moment(newValue), 'valueTo')
-
-    setValueTo(newValue)
-  }
-
   return (
-    <div>
+    <>
       <Button variant='outlined' onClick={handleClickOpen}>
         Book this book!
       </Button>
       <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Enter booking time</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            To reserve the book please enter the desired start and end time of booking. Please be
-            sure to book at least for 1 hour.
-          </DialogContentText>
-          <DialogContentText sx={{ my: 2 }}>From:</DialogContentText>
-          <LocalizationProvider dateAdapter={AdapterMoment}>
-            <DateTimePicker
-              label='Date&Time picker'
-              value={valueFrom}
-              onChange={handleChangeFrom}
-              renderInput={(params) => <TextField {...params} />}
-            />
-            <DialogContentText sx={{ my: 2 }}>To:</DialogContentText>
-            <DateTimePicker
-              label='Date&Time picker'
-              value={valueTo}
-              onChange={handleChangeTo}
-              renderInput={(params) => <TextField {...params} />}
-            />
-          </LocalizationProvider>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleReserve}>Confirm and book</Button>
-        </DialogActions>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <DialogTitle>Enter booking time</DialogTitle>
+          <DialogContent>
+            <DialogContentText sx={{ mb: 3 }}>
+              To reserve the book please enter the desired start and end time of booking. Please be
+              sure to book at least for 1 hour.
+            </DialogContentText>
+            <LocalizationProvider dateAdapter={AdapterMoment}>
+              <Controller
+                name={'start_date'}
+                control={control}
+                defaultValue={moment().format()}
+                rules={{
+                  required: 'Required field',
+                  validate: {
+                    afterNow: (value) => {
+                      setValueFrom(value)
+                      return moment(value).isSameOrAfter(valueFrom) || 'Cannot be earlier than now'
+                    },
+                  },
+                }}
+                render={({ field: { onChange, value }, fieldState: { error } }) => (
+                  <DateTimePicker
+                    label='From'
+                    disablePast
+                    value={value}
+                    onChange={onChange}
+                    renderInput={(params) => (
+                      <TextField sx={{ mx: 1 }} error helperText={error?.message} {...params} />
+                    )}
+                  />
+                )}
+              />
+              <Controller
+                name={'end_date'}
+                control={control}
+                defaultValue={moment().format()}
+                rules={{
+                  required: 'Required field',
+                  validate: {
+                    minOneHourReservation: (value) =>
+                      moment(value).isAfter(moment().add(1, 'hour')) ||
+                      'Please reserve at least for 1 hour',
+                  },
+                }}
+                render={({ field: { onChange, value }, fieldState: { error } }) => (
+                  <DateTimePicker
+                    label='To'
+                    disablePast
+                    value={value}
+                    minDateTime={moment(valueFrom || value).add(59, 'minutes')}
+                    onChange={onChange}
+                    renderInput={(params) => (
+                      <TextField sx={{ mx: 1 }} error helperText={error?.message} {...params} />
+                    )}
+                  />
+                )}
+              />
+            </LocalizationProvider>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button type='submit'>Confirm and book</Button>
+          </DialogActions>
+        </form>
       </Dialog>
-    </div>
+    </>
   )
 }
